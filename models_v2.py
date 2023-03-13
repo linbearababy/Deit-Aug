@@ -35,7 +35,7 @@ class Attention(nn.Module):
         attn = self.attn_drop(attn)
         
         row_sum = attn.sum(dim=-1)  # add this line to get the sum of each row of the attention, the dim is not sure?
-        #row_sum is a shape of m*1, and is the weight or the similaritoon of the relationship the patch query image and its key. not sure?
+        #row_sum is a shape of m*1 (m is the number of input or samples) or the shape could be (batch, nums_tol=ken) or the m* len(sequence), and is the weight or the similaritoon of the relationship the patch query image and its key. not sure?
         
         print(row_sum)
         #reshape the row_sum to a suqare and save as image
