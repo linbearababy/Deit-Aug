@@ -34,11 +34,12 @@ class Attention(nn.Module):
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
         
-        row_sum = attn.sum(dim=-1)  # add this line to get the sum of each row of the attention, the dim is not sure?
+        row_sum = attn.sum(dim= [-3,-2])  # add this line to get the sum of each row of the attention, the dim is not sure?
         #row_sum is a shape of m*1 (m is the number of input or samples) or the shape could be (batch, nums_tol=ken) or the m* len(sequence), and is the weight or the similaritoon of the relationship the patch query image and its key. not sure?
-        
+        (l m) *1
         print(row_sum)
         #reshape the row_sum to a suqare and save as image
+        row_sum = row_sum.squeeze(1,2)
         square_row = int(np.sqrt(len(row_sum)))
         row_sum_square = row_sum.reshape((square_row, square_row))
         # convert row_sum_square into a PIL image and save it
