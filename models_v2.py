@@ -33,7 +33,18 @@ class Attention(nn.Module):
         attn = (q @ k.transpose(-2, -1))
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
-
+        
+        row_sum = attn.sum(dim=-1)  # add this line to get the sum of each row of the attention, the dim is not sure?
+        #row_sum is a shape of m*1, and is the weight or the similaritoon of the relationship the patch query image and its key. not sure?
+        
+        print(row_sum)
+        #reshape the row_sum to a suqare and save as image
+        square_row = int(np.sqrt(len(row_sum)))
+        row_sum_square = row_sum.reshape((square_row, square_row))
+        # convert row_sum_square into a PIL image and save it
+        row_sum_img = Image.fromarray((row_sum_square * 255).astype(np.uint8), mode='L')
+        row_sum_img.save('row_sum.png')
+        
         x = (attn @ v).transpose(1, 2).reshape(B, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
