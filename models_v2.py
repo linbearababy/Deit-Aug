@@ -50,6 +50,39 @@ class Attention(nn.Module):
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
+## sace the image in the new folder    
+import os
+from PIL import Image
+
+def forward(self, x):
+    B, N, C = x.shape
+    qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+    q, k, v = qkv[0], qkv[1], qkv[2]
+    
+    q = q * self.scale
+
+    attn = (q @ k.transpose(-2, -1))
+    attn = attn.softmax(dim=-1)
+    attn = self.attn_drop(attn)
+    
+    row_sum = attn.sum(dim= [-3,-2])
+    row_sum = row_sum.squeeze(1,2)
+    square_row = int(np.sqrt(len(row_sum)))
+    row_sum_square = row_sum.reshape((square_row, square_row))
+    
+    # Create a directory called 'forward' if it doesn't already exist
+    if not os.path.exists('forward'):
+        os.makedirs('forward')
+        
+    # Save the row_sum image in the 'forward' directory
+    row_sum_img = Image.fromarray((row_sum_square * 255).astype(np.uint8), mode='L')
+    row_sum_img.save('forward/row_sum.png')
+    
+    x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+    x = self.proj(x)
+    x = self.proj_drop(x)
+    return x
+
     
 class Block(nn.Module):
     # taken from https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
