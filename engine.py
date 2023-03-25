@@ -99,6 +99,9 @@ def evaluate(data_loader, model, device):
 
         # take the average of model predictions from different augmentations
         output = torch.mean(torch.stack(output_list), dim=0)
+        
+        
+        
 
         loss = criterion(output, target)
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
@@ -148,6 +151,21 @@ def evaluate(data_loader, model, device):
         ## apply test-time augmentation with the composite transform (update)
         with torch.cuda.amp.autocast():
             output = model(composite_transform(images))
+            
+            
+            
+        ### all to one for 10, 20, 30, 40 times, an then get the mean.ls
+        
+        ## apply test-time augmentation (add)
+        output_list = []
+        for i in range(10):
+            with torch.cuda.amp.autocast():
+                cur_output = model(composite_transform(images))
+            output_list.append(cur_output)
+
+        # take the average of model predictions from different augmentations
+        output = torch.mean(torch.stack(output_list), dim=0)
+        ###
 
         loss = criterion(output, target)
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
